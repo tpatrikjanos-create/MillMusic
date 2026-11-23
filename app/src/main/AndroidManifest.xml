@@ -35,10 +35,28 @@
             </intent-filter>
         </activity>
 
+        <!-- Lejátszás + Android Auto menü -->
         <service
             android:name=".PlaybackService"
-            android:exported="false"
+            android:exported="true"
             android:foregroundServiceType="mediaPlayback"
-            android:stopWithTask="false" />
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+        <!-- Borítóképek (Android Auto csak content:// képet tölt be) -->
+        <provider
+            android:name=".ArtProvider"
+            android:authorities="hu.mill.music.art"
+            android:exported="true" />
+
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+        <meta-data
+            android:name="com.google.android.gms.car.notification.SmallIcon"
+            android:resource="@drawable/ic_note" />
     </application>
 </manifest>

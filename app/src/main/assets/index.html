@@ -132,7 +132,21 @@ function load(){
 }
 let saveT;
 function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250)}
-function saveNow(){try{localStorage.setItem('mm_db',JSON.stringify(db))}catch(e){toast('Mentési hiba: '+e.message)}}
+function saveNow(){try{localStorage.setItem('mm_db',JSON.stringify(db))}catch(e){toast('Mentési hiba: '+e.message)}syncLibSoon()}
+/* Android Auto menühöz: könyvtár-pillanatkép a natív oldalnak */
+let syncT;
+function syncLibSoon(){clearTimeout(syncT);syncT=setTimeout(syncLib,1500)}
+function artKey(t){if(!t)return '';if(t.thumb)return 'web:'+t.thumb;if(t.src==='local')return 'local:'+t.ref;return 'emoji:'+SRC[t.src][1]}
+function syncLib(){
+  const tracks={};
+  Object.values(db.tracks).forEach(t=>{if(t.src!=='radio'||t.fav)tracks[t.id]={t:t.title,a:t.artist||SRC[t.src][0],i:artKey(t)}});
+  const recent=[];for(let i=db.hist.length-1;i>=0&&recent.length<30;i--){const id=db.hist[i];if(!recent.includes(id)&&db.tracks[id]){recent.push(id);const t=db.tracks[id];if(!tracks[id])tracks[id]={t:t.title,a:t.artist||'',i:artKey(t)}}}
+  let rec=cur()&&cur().src!=='radio'?candidates(20).map(x=>x.t.id):[];
+  if(rec.length<20)Object.values(db.tracks).filter(t=>t.src!=='radio'&&!rec.includes(t.id)).sort((a,b)=>(b.plays||0)-(a.plays||0)).slice(0,20-rec.length).forEach(t=>rec.push(t.id));
+  const snap={lists:db.lists.map(l=>({id:l.id,name:l.name,emo:l.emo,items:l.items.filter(i=>db.tracks[i])})),season:seasonIds(),tracks,
+    radios:Object.values(db.tracks).filter(t=>t.src==='radio'&&t.fav).map(t=>t.id),recent,rec};
+  try{A.syncLibrary(JSON.stringify(snap))}catch(e){}
+}
 const cur=()=>P.cur?db.tracks[P.cur]:null;
 const listById=id=>db.lists.find(l=>l.id===id);
 
@@ -187,7 +201,7 @@ audio.addEventListener('error',()=>{
 function setPlaying(v){if(P.playing===v)return;P.playing=v;renderCtl();sess()}
 function sess(){
   const t=cur();
-  A.session(t?(t.title||'MillMusic'):'MillMusic',t?(t.artist||SRC[t.src][0]):'',!!P.playing,Math.round((P.pos||0)*1000),Math.round((P.dur||0)*1000));
+  A.session(t?(t.title||'MillMusic'):'MillMusic',t?(t.artist||SRC[t.src][0]):'',!!P.playing,Math.round((P.pos||0)*1000),Math.round((P.dur||0)*1000),artKey(t));
 }
 function stopAudio(){audio.pause();audio.removeAttribute('src');try{audio.load()}catch(e){}}
 
@@ -298,6 +312,27 @@ async function recommendNext(){
   return all.length?all[Math.floor(Math.random()*all.length)].id:null;
 }
 
+/* ---------------- Android Auto: menüből / hanggal indítás ---------------- */
+function playMediaId(id){
+  const p=String(id||'').split('|');
+  if(p[0]==='ls')playList(p[1],true);
+  else if(p[0]==='lp')playList(p[1],false,p[2]);
+  else if(p[0]==='t'&&db.tracks[p[1]])playSmart(p[1]);
+}
+async function voiceSearch(q){
+  const n=norm(q).replace(/\b(lista|listat|playlist|zene|zenet|zenek|a|az|the|radio|radiot)\b/g,' ').replace(/\s+/g,' ').trim();
+  if(!n){if(!P.playing)togglePlay();return}
+  const l=db.lists.find(x=>norm(x.name)===n)||db.lists.find(x=>norm(x.name).includes(n)||n.includes(norm(x.name)));
+  if(l&&l.items.some(i=>db.tracks[i]))return playList(l.id,true);
+  const ws=n.split(' ');
+  const hits=Object.values(db.tracks).filter(t=>(t.src!=='radio'||t.fav)&&ws.every(w=>norm(t.title+' '+t.artist).includes(w)));
+  if(hits.length){hits.sort((a,b)=>(b.plays||0)-(a.plays||0));return playSmart(hits[0].id)}
+  if(db.set.ytKey){
+    try{const r=await ytSearch(q);if(r.length){const t=addYt(r[0].id,r[0].title,r[0].channel);return playSmart(t.id)}}catch(e){}
+  }
+  toast('Nem találtam: '+q);
+}
+
 /* ---------------- YouTube ---------------- */
 function decodeHtml(s){const ta=document.createElement('textarea');ta.innerHTML=s;return ta.value}
 async function ytSearch(q){
@@ -354,7 +389,9 @@ window.MM={
       if(t&&(t.title==='YouTube videó'||!t.title)){splitInto(t,o.title,'');save();render();if(P.cur===t.id)sess()}
     }
   },
-  onMedia(cmd,arg){
+  onMedia(cmd,arg,s){
+    if(cmd==='playId')return playMediaId(s);
+    if(cmd==='search')return voiceSearch(s);
     if(cmd==='play'){if(!P.playing)togglePlay()}
     else if(cmd==='pause'){if(P.playing)togglePlay()}
     else if(cmd==='next')next();
@@ -703,7 +740,7 @@ function openSettings(){
     <h3>Biztonsági mentés</h3>
     <div class="muted">A listák és a könyvtár a telefonon tárolódnak. A Firebase-mentés a 2. szakaszban jön, addig kézzel:</div>
     <div class="flex" style="margin-top:8px"><button class="btn sec f1" onclick="exportDb()">📋 Másolás</button><button class="btn sec f1" onclick="importSheet()">📥 Betöltés</button></div>
-    <div class="muted" style="margin-top:16px;text-align:center">MillMusic ${esc(A.version()||'')} · 1. szakasz</div>`);
+    <div class="muted" style="margin-top:16px;text-align:center">MillMusic ${esc(A.version()||'')} · Android Auto</div>`);
 }
 function exportDb(){
   const s=JSON.stringify(db);
@@ -722,6 +759,7 @@ function doImport(){
 load();
 if(db.set.last&&db.tracks[db.set.last]){P.cur=db.set.last;P.kind=db.tracks[P.cur].src==='yt'?'yt':'audio';P.queue=[P.cur]}
 render();
+syncLib();
 </script>
 </body>
 </html>

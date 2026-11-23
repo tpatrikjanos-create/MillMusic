@@ -11,8 +11,8 @@ android {
         applicationId = "hu.mill.music"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1"
+        versionCode = 2
+        versionName = "0.2"
     }
 
     // Saját, fix kulcs: így minden új APK felülírja az előzőt (adatvesztés nélkül).

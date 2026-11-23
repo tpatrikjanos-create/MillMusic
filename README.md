@@ -12,6 +12,13 @@ Saját használatú Android zenelejátszó (Samsung S24-re hangolva).
 - **Megosztás**: YouTube app → Megosztás → MillMusic
 - Értesítés + lezárt képernyős vezérlő, fülhallgató/Bluetooth gombok
 
+## Android Auto
+- Lejátszókártya a navigáció mellett (borítóval), teljes képernyős lejátszó, kormánygombok
+- Menü fülek: **Most** (aktuális évszakos lista + legutóbb hallgatott), **Playlistek**, **Rádiók**, **Ajánlott**
+- Hangvezérlés: „Hey Google, játszd le a Karácsony listát a MillMusicban”
+- Egyszeri beállítás (mert nem Play Áruházból jön): Android Auto beállítások → a verziószámra 10× koppintás → ⋮ → Fejlesztői beállítások → **Ismeretlen források** ✓
+- A lejátszás motorja a telefonos app, ezért a MillMusicot telefon-újraindítás után egyszer meg kell nyitni (utána mehet háttérbe)
+
 ## APK készítése
 **GitHub Actions (ajánlott):** minden push után az Actions fülön a „Build APK” futás végén a *MillMusic-apk* artifactban van az APK. Telefonon: letöltés → telepítés (ismeretlen forrás engedélyezése).
 
@@ -31,5 +38,7 @@ Az APK egy fix kulccsal (`app/millmusic.jks`) van aláírva, így az újabb verz
 - `PlaybackService.kt` – előtérszolgáltatás, MediaSession, értesítés
 - `LocalServer.kt` – a felület és a helyi zenefájlok kiszolgálása (`https://millmusic.local`)
 - `YtScript.kt` – a YouTube oldalba injektált vezérlő szkript
+- `ArtProvider.kt` – borítóképek (YouTube, rádió logó, mp3 borító, lista-ikonok)
+- `Library.kt` – könyvtár-pillanatkép az Android Auto menühöz
 
 Külső függőség nincs, csak Android rendszer-API-k.

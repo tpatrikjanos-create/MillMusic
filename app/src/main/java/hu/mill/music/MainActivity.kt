@@ -45,8 +45,16 @@ private val BG = 0xFF0F0F14.toInt()
 /** Közvetítő a lejátszó-szolgáltatás (értesítés, lezárt képernyő, fülhallgató gombok) és a felület között. */
 object Bus {
     var activity: MainActivity? = null
-    fun command(c: String, arg: Long = 0) {
-        activity?.mediaCommand(c, arg)
+    /** Parancs, ami akkor jött (pl. az autóból), amikor a telefonos felület nem futott. */
+    var pending: Triple<String, Long, String>? = null
+    fun command(c: String, arg: Long = 0, s: String = "") {
+        val a = activity
+        if (a != null) {
+            a.mediaCommand(c, arg, s)
+        } else {
+            pending = Triple(c, arg, s)
+            PlaybackService.inst?.engineMissing()
+        }
     }
 }
 
@@ -151,6 +159,8 @@ class MainActivity : Activity() {
                 uiReady = true
                 pendingShare?.let { deliverShare(it) }
                 pendingShare = null
+                Bus.pending?.let { (c, a, s) -> mediaCommand(c, a, s) }
+                Bus.pending = null
             }
         }
     }
@@ -277,7 +287,8 @@ class MainActivity : Activity() {
 
     private fun deliverShare(t: String) = js("MM.onShared(${q(t)})")
 
-    fun mediaCommand(c: String, arg: Long) = js("window.MM&&MM.onMedia(${q(c)},$arg)")
+    fun mediaCommand(c: String, arg: Long, s: String = "") =
+        js("window.MM&&MM.onMedia(${q(c)},$arg,${q(s)})")
 
     private fun js(code: String) {
         main.post { ui.evaluateJavascript(code, null) }
@@ -435,8 +446,17 @@ class MainActivity : Activity() {
         }
 
         @JavascriptInterface
-        fun session(title: String, artist: String, playing: Boolean, pos: Double, dur: Double) {
-            main.post { PlaybackService.update(applicationContext, title, artist, playing, pos.toLong(), dur.toLong()) }
+        fun session(title: String, artist: String, playing: Boolean, pos: Double, dur: Double, art: String) {
+            main.post { PlaybackService.update(applicationContext, title, artist, playing, pos.toLong(), dur.toLong(), art) }
+        }
+
+        /** Könyvtár-pillanatkép az Android Auto menühöz */
+        @JavascriptInterface
+        fun syncLibrary(json: String) {
+            thread {
+                Library.save(applicationContext, json)
+                main.post { PlaybackService.inst?.libraryChanged() }
+            }
         }
 
         @JavascriptInterface
@@ -527,7 +547,7 @@ class MainActivity : Activity() {
         fun toast(msg: String) = toastMsg(msg)
 
         @JavascriptInterface
-        fun version(): String = "0.1"
+        fun version(): String = "0.2"
     }
 
     // ---------- YouTube oldal → natív → felület ----------
