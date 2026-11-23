@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>MillMusic</title>
+<style>
+:root{--bg:#0f0f14;--card:#1a1a24;--card2:#24242f;--line:#2c2c3a;--tx:#ececf1;--mut:#9a9aab;--ac:#8b5cf6;--ac2:#c084fc;--ok:#22c55e;--bad:#ef4444}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,Roboto,sans-serif;font-size:15px}
+body{display:flex;flex-direction:column;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+header{display:flex;align-items:center;padding:12px 16px 8px;gap:10px;flex:none}
+header h1{font-size:21px;margin:0;flex:1;font-weight:800;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.ib{background:none;border:0;color:var(--tx);font-size:21px;padding:6px 8px;border-radius:10px;line-height:1}
+.ib svg{width:24px;height:24px;fill:currentColor;display:block}
+main{flex:1;overflow-y:auto;padding:0 14px 18px}
+nav{display:flex;background:#14141c;border-top:1px solid var(--line);flex:none}
+nav button{flex:1;background:none;border:0;color:var(--mut);padding:7px 0 9px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px}
+nav button b{font-size:20px;font-weight:normal;filter:grayscale(1) brightness(1.4);opacity:.75}
+nav button.on{color:var(--ac2)}nav button.on b{filter:none;opacity:1}
+#mini{display:none;align-items:center;gap:10px;background:var(--card2);padding:7px 10px 7px 12px;border-top:1px solid var(--line);flex:none}
+#mini.on{display:flex}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600}
+.btn.sec{background:var(--card2);color:var(--tx)}
+.btn.sm{padding:7px 11px;font-size:13px}
+.row{display:flex;align-items:center;gap:11px;padding:9px 8px 9px 10px;border-radius:14px;background:var(--card);margin-bottom:6px}
+.row.cur{outline:1.5px solid var(--ac)}
+.tt{flex:1;min-width:0}
+.t1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mut);font-size:12.5px;margin-top:2px}
+.thumb{width:46px;height:46px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pl{background:var(--card);border-radius:16px;padding:14px;min-height:92px}
+.pl .e{font-size:26px}.pl .n{font-weight:700;margin-top:6px}.pl .c{color:var(--mut);font-size:12px;margin-top:2px}
+h3{margin:20px 2px 9px;font-size:12.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em}
+h2{margin:6px 0 12px;font-size:20px}
+input,textarea{width:100%;background:var(--card2);border:1px solid #34344a;color:var(--tx);border-radius:12px;padding:11px 12px;font-size:15px;outline:none;font-family:inherit}
+input:focus,textarea:focus{border-color:var(--ac)}
+label{display:block;color:var(--mut);font-size:12.5px;margin:12px 2px 5px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{background:var(--card2);border:0;color:var(--tx);border-radius:20px;padding:7px 13px;white-space:nowrap;font-size:13px}
+.chip.on{background:var(--ac);color:#fff}
+.np{display:flex;flex-direction:column;align-items:center;padding-top:8px}
+.art{width:min(68vw,290px);aspect-ratio:1;border-radius:26px;display:flex;align-items:center;justify-content:center;font-size:90px;background:linear-gradient(135deg,#2e1065,#7c3aed 60%,#c084fc);background-size:cover;background-position:center;box-shadow:0 18px 50px #7c3aed33}
+.np .ti{font-size:21px;font-weight:700;text-align:center;margin-top:18px;line-height:1.25}
+.np .ar{color:var(--mut);margin-top:5px;text-align:center}
+.tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.tag{background:var(--card2);border-radius:8px;padding:3px 8px;font-size:12px;color:var(--mut)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;padding:0;border:0;border-radius:4px;background:#34344a;margin:20px 0 6px;accent-color:var(--ac)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--ac2)}
+.tm{display:flex;justify-content:space-between;width:100%;color:var(--mut);font-size:12px}
+.ctl{display:flex;align-items:center;gap:30px;margin:12px 0 6px}
+.ctl button{background:none;border:0;color:var(--tx);padding:6px}
+.ctl svg{width:34px;height:34px;fill:currentColor;display:block}
+.ctl .pp{width:74px;height:74px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px #8b5cf655}
+.ctl .pp svg{width:38px;height:38px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+#bd{position:fixed;inset:0;background:#000a;display:none;z-index:19}#bd.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;background:#1c1c27;border-radius:22px 22px 0 0;padding:14px 16px 22px;max-height:82vh;overflow:auto;transform:translateY(105%);transition:transform .2s;z-index:20}
+.sheet.on{transform:none}
+.sheet .hd{font-weight:700;font-size:17px;margin:2px 4px 8px}
+.mi{display:block;width:100%;text-align:left;background:none;border:0;color:var(--tx);padding:13px 6px;font-size:16px;border-bottom:1px solid var(--line)}
+.mi:last-child{border-bottom:0}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#36364a;padding:10px 16px;border-radius:12px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30;max-width:86vw;text-align:center;font-size:14px}
+#toast.on{opacity:1}
+body.vid header{display:none}
+.vspace{display:none;height:56.25vw}
+body.vid .vspace{display:block}
+body.vid .art{display:none}
+.banner{background:linear-gradient(135deg,#4c1d95,#7c3aed);border-radius:18px;padding:16px;display:flex;align-items:center;gap:12px;margin-top:4px}
+.banner .e{font-size:36px}
+.warn{background:#33260f;border:1px solid #6b4f17;border-radius:14px;padding:12px;margin-top:6px;font-size:13.5px;line-height:1.4}
+.muted{color:var(--mut);font-size:13px;line-height:1.45}
+.flex{display:flex;gap:8px;align-items:center}
+.f1{flex:1}
+.empty{text-align:center;color:var(--mut);padding:40px 10px}
+.back{display:flex;align-items:center;gap:6px;margin:4px 0 6px}
+.dots{background:none;border:0;color:var(--mut);font-size:22px;padding:4px 8px;line-height:1}
+</style>
+</head>
+<body>
+<header><h1>MillMusic</h1><button class="ib" onclick="openSettings()">⚙️</button></header>
+<main id="main"></main>
+<div id="mini" onclick="go('most')">
+  <div class="thumb" id="miniArt">🎵</div>
+  <div class="tt"><div class="t1" id="miniT"></div><div class="t2" id="miniA"></div></div>
+  <button class="ib" id="miniPP" onclick="event.stopPropagation();togglePlay()"></button>
+  <button class="ib" id="miniNx" onclick="event.stopPropagation();next()"></button>
+</div>
+<nav id="nav"></nav>
+<div id="bd" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   MillMusic – felület. Natív híd: window.Android
+   ========================================================= */
+const A = window.Android || new Proxy({}, {get: (_, k) => (...a) => { console.log('Android.' + k, a); return k === 'batteryOk' ? true : ''; }});
+const $ = s => document.querySelector(s);
+const enc = encodeURIComponent;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return (h>>>0).toString(36)}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function fmt(s){s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2300)}
+const I={
+  play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>',
+  next:'<svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>',
+  prev:'<svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>'
+};
+
+/* ---------------- Adatok ---------------- */
+const DEF=[
+ ['tel','Téli','❄️','season'],['tavasz','Tavaszi','🌸','season'],['nyar','Nyári','☀️','season'],['osz','Őszi','🍂','season'],
+ ['kar','Karácsony','🎄','season'],['hall','Halloween','🎃','season'],
+ ['mel','Melankolikus','🌧️','mood'],['erz','Érzelmes','💜','mood'],['szom','Szomorú','😢','mood'],['bold','Boldog','😄','mood']
+];
+const SRC={yt:['YouTube','▶️'],local:['Helyi','📱'],url:['Felhő','☁️'],radio:['Rádió','📻']};
+let db;
+function load(){
+  try{db=JSON.parse(localStorage.getItem('mm_db'))}catch(e){db=null}
+  if(!db||!db.tracks)db={tracks:{},lists:[],hist:[],set:{}};
+  db.lists=db.lists||[];db.hist=db.hist||[];db.set=db.set||{};
+  DEF.forEach(([id,name,emo,kind])=>{if(!db.lists.find(l=>l.id===id))db.lists.push({id,name,emo,kind,items:[]})});
+}
+let saveT;
+function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,250)}
+function saveNow(){try{localStorage.setItem('mm_db',JSON.stringify(db))}catch(e){toast('Mentési hiba: '+e.message)}}
+const cur=()=>P.cur?db.tracks[P.cur]:null;
+const listById=id=>db.lists.find(l=>l.id===id);
+
+function seasonIds(){
+  const d=new Date(),m=d.getMonth()+1,day=d.getDate(),r=[];
+  if(m===12&&day<=26)r.push('kar');
+  if((m===10&&day>=15)||(m===11&&day<=1))r.push('hall');
+  r.push(m===12||m<=2?'tel':m<=5?'tavasz':m<=8?'nyar':'osz');
+  return r;
+}
+
+/* ---------------- Számok ---------------- */
+function addTrack(o){
+  if(db.tracks[o.id])return db.tracks[o.id];
+  const t=Object.assign({title:'',artist:'',genre:'',plays:0,skips:0,added:Date.now()},o);
+  db.tracks[t.id]=t;save();return t;
+}
+function artistSplit(s){const m=String(s).match(/^(.+?)\s+[-–—|]\s+(.+)$/);return m?{artist:m[1].trim(),title:m[2].trim()}:null}
+function cleanYtTitle(t){return String(t||'').replace(/\s*[\(\[][^\)\]]*(official|hivatalos|lyric|audio|video|videó|klip|clip|hd|4k|visualizer)[^\)\]]*[\)\]]/gi,'').replace(/\s{2,}/g,' ').trim()}
+function cleanCh(c){return String(c||'').replace(/\s*-\s*Topic$/i,'').replace(/VEVO$/i,'').replace(/\s*Official$/i,'').trim()}
+function ytId(u){const m=String(u||'').match(/(?:[?&]v=|youtu\.be\/|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:null}
+function cleanGenre(g){g=String(g||'').trim();if(/^\(?\d+\)?$/.test(g))return '';return g.replace(/^\(\d+\)/,'').trim()}
+function splitInto(t,raw,channel){
+  let title=cleanYtTitle(raw),artist='';
+  const sp=artistSplit(title);
+  if(sp){artist=sp.artist;title=sp.title}else if(channel)artist=cleanCh(channel);
+  t.title=title||t.title;if(artist)t.artist=artist;
+}
+function addYt(vid,rawTitle,channel){
+  const id='y_'+vid;
+  if(db.tracks[id])return db.tracks[id];
+  const t={id,src:'yt',ref:vid,title:'YouTube videó',thumb:'https://i.ytimg.com/vi/'+vid+'/mqdefault.jpg'};
+  if(rawTitle)splitInto(t,rawTitle,channel);
+  return addTrack(t);
+}
+function urlFor(t){return t.src==='local'?'/local?u='+enc(t.ref):t.ref}
+
+/* ---------------- Lejátszó ---------------- */
+const P={cur:null,kind:null,loaded:false,playing:false,pos:0,dur:0,queue:[],qi:0,mode:'smart',listId:null,shuffle:false,video:false,browsing:false};
+const audio=new Audio();audio.preload='auto';
+let errCount=0;
+audio.addEventListener('playing',()=>{errCount=0;setPlaying(true)});
+audio.addEventListener('pause',()=>setPlaying(false));
+audio.addEventListener('ended',()=>{if(P.kind==='audio')next(true)});
+audio.addEventListener('timeupdate',()=>{if(P.kind==='audio'){P.pos=audio.currentTime;P.dur=isFinite(audio.duration)?audio.duration:0;tick()}});
+audio.addEventListener('loadedmetadata',()=>{if(P.kind==='audio'){P.dur=isFinite(audio.duration)?audio.duration:0;sess()}});
+audio.addEventListener('error',()=>{
+  if(P.kind!=='audio'||!audio.getAttribute('src'))return;
+  errCount++;toast('Nem lejátszható: '+(cur()?.title||''));
+  if(errCount<5)setTimeout(()=>next(true),1300);
+});
+function setPlaying(v){if(P.playing===v)return;P.playing=v;renderCtl();sess()}
+function sess(){
+  const t=cur();
+  A.session(t?(t.title||'MillMusic'):'MillMusic',t?(t.artist||SRC[t.src][0]):'',!!P.playing,Math.round((P.pos||0)*1000),Math.round((P.dur||0)*1000));
+}
+function stopAudio(){audio.pause();audio.removeAttribute('src');try{audio.load()}catch(e){}}
+
+function play(id){
+  const t=db.tracks[id];if(!t)return;
+  P.cur=id;P.loaded=true;P.pos=0;P.dur=t.dur||0;P.playing=false;
+  t.plays=(t.plays||0)+1;db.hist.push(id);if(db.hist.length>300)db.hist.splice(0,db.hist.length-300);
+  db.set.last=id;save();
+  if(t.src==='yt'){
+    if(P.kind==='audio')stopAudio();
+    P.kind='yt';A.ytPlay(t.ref);
+  }else{
+    if(P.kind==='yt')A.ytStop();
+    P.kind='audio';audio.src=urlFor(t);audio.play().catch(()=>{});
+    if(t.src==='radio'&&t.uuid)rb('url/'+t.uuid).catch(()=>{});
+  }
+  syncYtView();render();sess();
+}
+function playSmart(id){P.mode='smart';P.listId=null;P.queue=[id];P.qi=0;play(id)}
+function playList(lid,shuffle,startId){
+  const l=listById(lid);if(!l)return;
+  let q=l.items.filter(i=>db.tracks[i]);
+  if(!q.length)return toast('A lista üres');
+  if(shuffle)q=shuf(q);
+  P.mode='list';P.listId=lid;P.shuffle=!!shuffle;P.queue=q;
+  P.qi=startId?Math.max(0,q.indexOf(startId)):0;
+  play(q[P.qi]);
+}
+function togglePlay(){
+  if(!P.cur){
+    for(const id of seasonIds()){const l=listById(id);if(l&&l.items.some(i=>db.tracks[i]))return playList(id,true)}
+    const all=Object.values(db.tracks).filter(t=>t.src!=='radio');
+    if(all.length)return playSmart(all[Math.floor(Math.random()*all.length)].id);
+    return toast('Még nincs zene – adj hozzá a Könyvtárban vagy a YouTube fülön');
+  }
+  if(!P.loaded)return play(P.cur);
+  if(P.kind==='yt')A.ytCmd(P.playing?'pause':'play',0);
+  else{if(audio.paused)audio.play().catch(()=>{});else audio.pause()}
+}
+function seek(s){
+  if(P.kind==='yt')A.ytCmd('seek',s);
+  else if(isFinite(audio.duration))audio.currentTime=s;
+  P.pos=s;tick();sess();
+}
+let recBusy=false;
+function next(auto){
+  const c=cur();
+  if(!auto&&c&&P.pos<30&&P.dur>60){c.skips=(c.skips||0)+1;save()}
+  if(P.mode==='list'&&P.queue.length){
+    P.qi++;
+    if(P.qi>=P.queue.length){P.qi=0;if(P.shuffle)P.queue=shuf(P.queue)}
+    return play(P.queue[P.qi]);
+  }
+  if(P.qi<P.queue.length-1){P.qi++;return play(P.queue[P.qi])}
+  if(recBusy)return;recBusy=true;
+  recommendNext().then(id=>{
+    recBusy=false;
+    if(id){P.queue.push(id);P.qi=P.queue.length-1;play(id)}else toast('Nincs több ajánlás');
+  }).catch(()=>{recBusy=false});
+}
+function prev(){
+  if(P.pos>5)return seek(0);
+  if(P.qi>0){P.qi--;play(P.queue[P.qi])}else seek(0);
+}
+function playNextUp(id){P.queue.splice(P.qi+1,0,id);toast('Következőnek beállítva')}
+
+/* ---------------- Okos ajánlás (cím szavai + előadó + műfaj) ---------------- */
+const STOP=new Set('the and feat feat. ft official video lyrics lyric audio music hd remastered remaster version edit radio mix with from for you your are this that what klip hivatalos videoklip videoclip dalszoveg zene egy az es nem meg van vagy mint topic prod full album extended original new visualizer live remix cover ver vol part'.split(' '));
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
+function words(t){return [...new Set(norm(t.title).split(/[^a-z0-9]+/).filter(w=>w.length>2&&!STOP.has(w)&&!/^\d+$/.test(w)))]}
+function artistOf(t){return norm(t.artist).replace(/\s*(feat|ft)\.?\s.*$/,'').trim()}
+function score(a,b){
+  let s=0;
+  const aa=artistOf(a),ba=artistOf(b);
+  if(aa&&aa===ba)s+=3;
+  if(a.genre&&b.genre&&norm(a.genre)===norm(b.genre))s+=2;
+  const wa=words(a);s+=words(b).filter(w=>wa.includes(w)).length*1.5;
+  s-=(b.skips||0)*0.7;s+=Math.min(b.plays||0,10)*0.05;s+=Math.random()*0.6;
+  return s;
+}
+function candidates(n){
+  const c=cur();if(!c)return [];
+  const recent=new Set(db.hist.slice(-25));
+  return Object.values(db.tracks)
+    .filter(t=>t.id!==c.id&&!recent.has(t.id)&&t.src!=='radio')
+    .map(t=>({t,s:score(c,t)})).sort((x,y)=>y.s-x.s).slice(0,n);
+}
+async function recommendNext(){
+  const c=cur();if(!c)return null;
+  if(c.src==='radio'){
+    const favs=Object.values(db.tracks).filter(t=>t.src==='radio'&&t.fav);
+    if(!favs.length)return null;
+    const i=favs.findIndex(t=>t.id===c.id);return favs[(i+1)%favs.length].id;
+  }
+  const list=candidates(5);
+  if(list.length&&list[0].s>1.2)return list[0].t.id;
+  if(db.set.ytKey){
+    const q=[c.artist,...words(c).slice(0,3)].filter(Boolean).join(' ')||c.title;
+    try{
+      const res=await ytSearch(q);
+      const recent=new Set(db.hist.slice(-40));
+      const pick=res.find(r=>!recent.has('y_'+r.id)&&'y_'+r.id!==c.id);
+      if(pick)return addYt(pick.id,pick.title,pick.channel).id;
+    }catch(e){toast('YouTube keresés: '+e.message)}
+  }
+  if(list.length)return list[0].t.id;
+  const all=Object.values(db.tracks).filter(t=>t.src!=='radio'&&t.id!==c.id);
+  return all.length?all[Math.floor(Math.random()*all.length)].id:null;
+}
+
+/* ---------------- YouTube ---------------- */
+function decodeHtml(s){const ta=document.createElement('textarea');ta.innerHTML=s;return ta.value}
+async function ytSearch(q){
+  const k=db.set.ytKey;if(!k)throw new Error('nincs API-kulcs');
+  const r=await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=20&q='+enc(q)+'&key='+enc(k));
+  const j=await r.json();
+  if(j.error)throw new Error(j.error.message||'hiba');
+  return (j.items||[]).filter(i=>i.id&&i.id.videoId).map(i=>({id:i.id.videoId,title:decodeHtml(i.snippet.title),channel:i.snippet.channelTitle,thumb:(i.snippet.thumbnails&&i.snippet.thumbnails.default||{}).url}));
+}
+function browse(url){P.browsing=true;lastYtMode='browse';A.ytBrowse(url||'https://m.youtube.com/')}
+let lastYtMode=null;
+function syncYtView(){
+  if(P.browsing)return;
+  const v=P.video&&P.kind==='yt'&&tab==='most'&&!listView;
+  document.body.classList.toggle('vid',v);
+  const m=v?'video':'hidden';
+  if(m!==lastYtMode){lastYtMode=m;A.ytMode(m)}
+}
+function toggleVideo(){P.video=!P.video;syncYtView();render()}
+
+/* ---------------- Rádió (Radio Browser) ---------------- */
+const RB_HOSTS=['de1','de2','fi1','nl1','at1'];
+async function rb(path){
+  let last;
+  for(const h of RB_HOSTS){
+    try{const r=await fetch('https://'+h+'.api.radio-browser.info/json/'+path);if(r.ok)return await r.json();last=new Error('HTTP '+r.status)}catch(e){last=e}
+  }
+  throw last||new Error('nem elérhető');
+}
+function stTrack(s){
+  return addTrack({id:'r_'+s.stationuuid,src:'radio',ref:s.url_resolved||s.url,title:String(s.name||'Rádió').trim(),
+    artist:'Rádió'+(s.countrycode?' · '+s.countrycode:''),genre:String(s.tags||'').split(',')[0]||'',thumb:s.favicon||'',uuid:s.stationuuid,fav:false});
+}
+
+/* ---------------- Natív → felület ---------------- */
+const HTTP={};let hid=0;
+function nget(url){return new Promise(res=>{const id=++hid;HTTP[id]=res;A.httpGet(url,id)})}
+window.MM={
+  onYt(json){
+    let o;try{o=JSON.parse(json)}catch(e){return}
+    if(o.type==='state'){
+      if(o.playing&&P.kind!=='yt'&&o.vid&&P.browsing){ // böngészés közben indított videó → ez lesz az aktuális
+        if(P.kind==='audio')stopAudio();
+        const t=addYt(o.vid,'','');P.cur=t.id;P.kind='yt';P.loaded=true;P.mode='smart';P.queue=[t.id];P.qi=0;
+        db.hist.push(t.id);save();render();
+      }
+      if(P.kind==='yt'){P.playing=!!o.playing;renderCtl();sess()}
+    }else if(o.type==='time'){
+      if(P.kind==='yt'){const had=P.dur;P.pos=o.t;P.dur=o.d;tick();if(!had&&o.d)sess()}
+    }else if(o.type==='ended'){
+      if(P.kind==='yt')next(true);
+    }else if(o.type==='title'){
+      const t=o.vid&&db.tracks['y_'+o.vid];
+      if(t&&(t.title==='YouTube videó'||!t.title)){splitInto(t,o.title,'');save();render();if(P.cur===t.id)sess()}
+    }
+  },
+  onMedia(cmd,arg){
+    if(cmd==='play'){if(!P.playing)togglePlay()}
+    else if(cmd==='pause'){if(P.playing)togglePlay()}
+    else if(cmd==='next')next();
+    else if(cmd==='prev')prev();
+    else if(cmd==='seek')seek(arg/1000);
+  },
+  onLocalTracks(json){
+    let arr=[];try{arr=JSON.parse(json)}catch(e){}
+    let n=0;
+    arr.forEach(m=>{
+      const id='l_'+hash(m.uri);
+      const base=String(m.name||'').replace(/\.[^.]+$/,'');
+      let title=m.title||base,artist=m.artist||'';
+      if(!m.title&&!artist){const sp=artistSplit(base);if(sp){artist=sp.artist;title=sp.title}}
+      const ex=db.tracks[id];
+      if(ex){Object.assign(ex,{title,artist,genre:cleanGenre(m.genre)||ex.genre,album:m.album||'',dur:(+m.dur||0)/1000})}
+      else{addTrack({id,src:'local',ref:m.uri,title,artist,genre:cleanGenre(m.genre),album:m.album||'',dur:(+m.dur||0)/1000});n++}
+    });
+    save();toast(arr.length?`${arr.length} szám beolvasva (${n} új)`:'Nem találtam zenefájlt');
+    render();
+  },
+  onScanProgress(n){toast('Beolvasás… '+n+' szám')},
+  onHttp(id,code,body){const f=HTTP[id];delete HTTP[id];if(f)f({code,body})},
+  async onShared(text){
+    const m=String(text).match(/https?:\/\/\S+/);
+    if(!m)return toast('Nincs link a megosztásban');
+    const url=m[0],vid=ytId(url);
+    if(vid){
+      const t=addYt(vid,'','');
+      if(t.title==='YouTube videó'){
+        const r=await nget('https://www.youtube.com/oembed?format=json&url='+enc('https://www.youtube.com/watch?v='+vid));
+        try{const j=JSON.parse(r.body);splitInto(t,j.title,j.author_name);save()}catch(e){}
+      }
+      render();return addToListSheet(t.id,true);
+    }
+    if(/\.(mp3|m4a|aac|ogg|opus|flac|wav)(\?|$)/i.test(url)){const t=addUrlTrack(url,'','');render();return addToListSheet(t.id,true)}
+    toast('Ezt a linket nem tudom lejátszani');
+  },
+  onBrowseAdd(url,title){
+    P.browsing=false;lastYtMode='hidden';
+    const vid=ytId(url);syncYtView();
+    if(!vid)return toast('Nyiss meg egy videót, azt tudom hozzáadni');
+    const t=addYt(vid,String(title||'').replace(/ - YouTube$/,''),'');
+    render();addToListSheet(t.id,true);
+  },
+  onBrowseClose(){P.browsing=false;lastYtMode='hidden';syncYtView()},
+  back(){
+    if($('#sheet').classList.contains('on')){closeSheet();return true}
+    if(listView){listView=null;render();syncYtView();return true}
+    if(tab!=='most'){go('most');return true}
+    return false;
+  }
+};
+
+/* ---------------- Felhő (URL) ---------------- */
+function normCloudUrl(u){
+  u=String(u).trim();
+  let m=u.match(/drive\.google\.com\/file\/d\/([^/?#]+)/)||u.match(/drive\.google\.com\/(?:open|uc)\?(?:.*&)?id=([^&#]+)/);
+  if(m)return 'https://drive.google.com/uc?export=download&id='+m[1];
+  if(/dropbox\.com/.test(u)){u=u.replace(/([?&])dl=0/,'$1raw=1');if(!/[?&]raw=1/.test(u))u+=(u.includes('?')?'&':'?')+'raw=1';return u}
+  return u;
+}
+function addUrlTrack(url,title,artist){
+  url=normCloudUrl(url);
+  let name='';try{name=decodeURIComponent(new URL(url).pathname.split('/').pop()||'').replace(/\.[^.]+$/,'')}catch(e){}
+  let t=title,a=artist;
+  if(!t){const sp=artistSplit(name);if(sp){t=sp.title;a=a||sp.artist}else t=name||'Felhős zene'}
+  return addTrack({id:'u_'+hash(url),src:'url',ref:url,title:t,artist:a||''});
+}
+
+/* ---------------- Felület ---------------- */
+const TABS=[['most','🎧','Most'],['lists','📚','Listák'],['lib','💿','Könyvtár'],['yt','▶️','YouTube'],['radio','📻','Rádió']];
+let tab='most',listView=null,libQ='',libF='all',ytQ='',ytRes=[],radioMode='fav',radioQ='',radioRes=[],radioLoading=false;
+
+function go(t){tab=t;listView=null;closeSheet();render();syncYtView();$('#main').scrollTop=0}
+function thumbHtml(t){
+  const e=t?SRC[t.src][1]:'🎵';
+  if(t&&t.thumb)return `<div class="thumb"><img src="${esc(t.thumb)}" onerror="this.parentNode.textContent='${e}'"></div>`;
+  return `<div class="thumb">${e}</div>`;
+}
+function trackRow(t,opts={}){
+  const sub=[t.artist,t.genre,SRC[t.src][0]].filter(Boolean).join(' · ');
+  return `<div class="row${P.cur===t.id?' cur':''}" onclick="${opts.onclick||`playSmart('${t.id}');go('most')`}">
+    ${thumbHtml(t)}<div class="tt"><div class="t1">${esc(t.title)}</div><div class="t2">${esc(sub)}</div></div>
+    ${opts.right||`<button class="dots" onclick="event.stopPropagation();trackMenu('${t.id}')">⋯</button>`}</div>`;
+}
+function render(){
+  $('#nav').innerHTML=TABS.map(([id,e,n])=>`<button class="${tab===id?'on':''}" onclick="go('${id}')"><b>${e}</b>${n}</button>`).join('');
+  const m=$('#main');
+  if(tab==='most')m.innerHTML=renderMost();
+  else if(tab==='lists')m.innerHTML=listView?renderListView():renderLists();
+  else if(tab==='lib')m.innerHTML=renderLib();
+  else if(tab==='yt')m.innerHTML=renderYt();
+  else if(tab==='radio')m.innerHTML=renderRadio();
+  renderMini();renderCtl();tick();
+}
+function renderMini(){
+  const t=cur(),on=!!t&&tab!=='most';
+  $('#mini').classList.toggle('on',on);
+  if(!on)return;
+  $('#miniArt').outerHTML=thumbHtml(t).replace('class="thumb"','class="thumb" id="miniArt"');
+  $('#miniT').textContent=t.title;$('#miniA').textContent=t.artist||SRC[t.src][0];
+}
+function renderCtl(){
+  const ic=P.playing?I.pause:I.play;
+  const pp=$('#pp');if(pp)pp.innerHTML=ic;
+  $('#miniPP').innerHTML=ic;$('#miniNx').innerHTML=I.next;
+}
+let dragging=false;
+function tick(){
+  const s=$('#seek');
+  if(s&&!dragging)s.value=P.dur?Math.round(P.pos/P.dur*1000):0;
+  const a=$('#tcur'),b=$('#tdur');
+  if(a)a.textContent=fmt(P.pos);if(b)b.textContent=P.dur?fmt(P.dur):'–';
+}
+
+function renderMost(){
+  const t=cur();
+  if(!t){
+    const s=listById(seasonIds()[0]);
+    return `<div class="np"><div class="art">🎵</div><div class="ti">Nincs lejátszás</div>
+      <div class="ar">Indításkor az aktuális évszak listája (${esc(s.emo+' '+s.name)}) szól, ha van benne zene.</div>
+      <div class="ctl"><button class="pp" id="pp" onclick="togglePlay()">${I.play}</button></div></div>`;
+  }
+  const isRadio=t.src==='radio';
+  const modeTxt=P.mode==='list'?('Lista: '+(listById(P.listId)||{}).name+(P.shuffle?' · kevert':'')):(isRadio?'Kedvenc rádiók':'Okos ajánlás');
+  const bg=t.thumb?`style="background-image:url('${esc(t.thumb)}');${isRadio?'background-size:60%;background-repeat:no-repeat;background-color:#24242f':''}"`:'';
+  let up='';
+  if(P.mode==='list'){
+    const nx=P.queue.slice(P.qi+1,P.qi+6).map(id=>db.tracks[id]).filter(Boolean);
+    if(nx.length)up=`<h3>Következik</h3>`+nx.map(x=>trackRow(x,{onclick:`P.qi=P.queue.indexOf('${x.id}');play('${x.id}')`})).join('');
+  }else if(!isRadio){
+    const c=candidates(5);
+    if(c.length)up=`<h3>Ajánlott következők</h3>`+c.map(x=>trackRow(x.t,{onclick:`playNextUp('${x.t.id}');next()`})).join('');
+  }
+  return `<div class="vspace"></div><div class="np">
+    <div class="art" ${bg}>${t.thumb?'':SRC[t.src][1]}</div>
+    <div class="ti">${esc(t.title)}</div><div class="ar">${esc(t.artist||'')}</div>
+    <div class="tags"><span class="tag">${SRC[t.src][1]} ${SRC[t.src][0]}</span>${t.genre?`<span class="tag">${esc(t.genre)}</span>`:''}<span class="tag">${esc(modeTxt)}</span></div>
+    ${isRadio?'<div style="height:24px"></div>':`<input type="range" id="seek" min="0" max="1000" value="0"
+      oninput="dragging=true" onchange="dragging=false;if(P.dur)seek(this.value/1000*P.dur)">
+    <div class="tm"><span id="tcur">0:00</span><span id="tdur">–</span></div>`}
+    <div class="ctl"><button onclick="prev()">${I.prev}</button><button class="pp" id="pp" onclick="togglePlay()">${I.play}</button><button onclick="next()">${I.next}</button></div>
+    <div class="acts">
+      <button class="btn sec sm" onclick="addToListSheet('${t.id}')">＋ Listához</button>
+      ${t.src==='yt'?`<button class="btn sec sm" onclick="toggleVideo()">${P.video?'🎵 Csak hang':'📺 Videó'}</button>`:''}
+      ${isRadio?`<button class="btn sec sm" onclick="favToggle('${t.id}')">${t.fav?'★ Kedvenc':'☆ Kedvencekhez'}</button>`:`<button class="btn sec sm" onclick="editTrack('${t.id}')">✏️ Szerkesztés</button>`}
+    </div></div>${up}`;
+}
+
+function renderLists(){
+  let h='';
+  if(!A.batteryOk())h+=`<div class="warn">⚠️ <b>Samsung akkumulátor:</b> engedélyezd a korlátlan háttérfutást, különben lezárt képernyőn leállhat a zene.
+    <div class="flex" style="margin-top:9px"><button class="btn sm" onclick="A.requestBattery()">Engedélyezés</button><button class="btn sec sm" onclick="A.openAppSettings()">App beállítások</button></div></div>`;
+  const sid=seasonIds(),sl=sid.map(listById);
+  h+=`<h3>Most aktuális</h3>`+sl.map(l=>`<div class="banner" onclick="openList('${l.id}')"><div class="e">${l.emo}</div>
+    <div class="f1"><div style="font-weight:800;font-size:18px">${esc(l.name)}</div><div style="opacity:.8;font-size:13px">${l.items.length} szám</div></div>
+    <button class="btn" style="background:#fff2" onclick="event.stopPropagation();playList('${l.id}',true);go('most')">🔀 Indítás</button></div>`).join('<div style="height:8px"></div>');
+  const card=l=>`<div class="pl" onclick="openList('${l.id}')"><div class="e">${l.emo}</div><div class="n">${esc(l.name)}</div><div class="c">${l.items.length} szám</div></div>`;
+  h+=`<h3>Évszakok és ünnepek</h3><div class="grid">${db.lists.filter(l=>l.kind==='season').map(card).join('')}</div>`;
+  h+=`<h3>Hangulatok</h3><div class="grid">${db.lists.filter(l=>l.kind==='mood').map(card).join('')}</div>`;
+  const cu=db.lists.filter(l=>l.kind==='custom');
+  h+=`<h3>Saját listák</h3><div class="grid">${cu.map(card).join('')}<div class="pl" onclick="newListSheet()" style="display:flex;align-items:center;justify-content:center;color:var(--mut);font-weight:600">＋ Új lista</div></div>`;
+  return h;
+}
+function openList(id){listView=id;render();$('#main').scrollTop=0}
+function renderListView(){
+  const l=listById(listView);if(!l){listView=null;return renderLists()}
+  const items=l.items.map(i=>db.tracks[i]).filter(Boolean);
+  let h=`<div class="back"><button class="ib" onclick="listView=null;render()">←</button><h2 style="margin:0">${l.emo} ${esc(l.name)}</h2></div>
+    <div class="flex" style="margin:8px 0 14px;flex-wrap:wrap"><button class="btn" onclick="playList('${l.id}',false);go('most')">▶ Lejátszás</button><button class="btn sec" onclick="playList('${l.id}',true);go('most')">🔀 Keverés</button>
+    ${l.kind==='custom'?`<button class="btn sec" onclick="renameList('${l.id}')">✏️</button><button class="btn sec" id="delL" onclick="delList('${l.id}')">🗑️</button>`:''}</div>`;
+  if(!items.length)return h+`<div class="empty">A lista üres.<br>Bármelyik számnál a ⋯ → „Listához” menüvel adhatsz hozzá.</div>`;
+  return h+items.map(t=>trackRow(t,{onclick:`playList('${l.id}',false,'${t.id}');go('most')`,
+    right:`<button class="dots" onclick="event.stopPropagation();removeFromList('${l.id}','${t.id}')">✕</button>`})).join('');
+}
+function removeFromList(lid,tid){const l=listById(lid);l.items=l.items.filter(x=>x!==tid);save();render()}
+function renameList(lid){
+  const l=listById(lid);
+  openSheet(`<div class="hd">Lista átnevezése</div><input id="ln" value="${esc(l.name)}"><div class="flex" style="margin-top:12px"><button class="btn f1" onclick="const v=$('#ln').value.trim();if(v){listById('${lid}').name=v;save()}closeSheet();render()">Mentés</button></div>`);
+}
+function delList(lid){
+  const b=$('#delL');
+  if(b.dataset.c){db.lists=db.lists.filter(l=>l.id!==lid);save();listView=null;render();return toast('Lista törölve')}
+  b.dataset.c='1';b.textContent='Biztos?';
+}
+function newListSheet(thenAdd){
+  openSheet(`<div class="hd">Új lista</div><input id="ln" placeholder="pl. Edzés, Autózás…"><div class="flex" style="margin-top:12px"><button class="btn f1" onclick="createList(${thenAdd?`'${thenAdd}'`:'null'})">Létrehozás</button></div>`);
+  setTimeout(()=>$('#ln')&&$('#ln').focus(),250);
+}
+function createList(addId){
+  const v=$('#ln').value.trim();if(!v)return;
+  const l={id:'c_'+uid(),name:v,emo:'🎶',kind:'custom',items:addId?[addId]:[]};
+  db.lists.push(l);save();closeSheet();render();toast(addId?'Lista létrehozva, szám hozzáadva':'Lista létrehozva');
+}
+
+function renderLib(){
+  const all=Object.values(db.tracks).filter(t=>t.src!=='radio');
+  const q=norm(libQ);
+  let list=all.filter(t=>(libF==='all'||t.src===libF)&&(!q||norm(t.title+' '+t.artist+' '+t.genre).includes(q)));
+  list.sort((a,b)=>(b.added||0)-(a.added||0));
+  const chip=(id,n)=>`<button class="chip ${libF===id?'on':''}" onclick="libF='${id}';render()">${n}</button>`;
+  return `<div class="grid" style="margin-top:4px">
+      <button class="btn sec" onclick="A.pickFolder()">📁 Mappa</button><button class="btn sec" onclick="A.pickFiles()">🎵 Fájlok</button>
+      <button class="btn sec" onclick="urlSheet()">☁️ Felhős link</button><button class="btn sec" onclick="go('yt')">▶️ YouTube</button></div>
+    <div style="margin:14px 0 8px"><input id="libq" placeholder="Keresés: cím, előadó, műfaj…" value="${esc(libQ)}" oninput="libQ=this.value;$('#libList').innerHTML=libListHtml()"></div>
+    <div class="chips">${chip('all','Mind ('+all.length+')')}${chip('yt','YouTube')}${chip('local','Helyi')}${chip('url','Felhő')}</div>
+    <div id="libList">${libListHtml(list)}</div>`;
+}
+function libListHtml(list){
+  if(!list){const q=norm(libQ);list=Object.values(db.tracks).filter(t=>t.src!=='radio'&&(libF==='all'||t.src===libF)&&(!q||norm(t.title+' '+t.artist+' '+t.genre).includes(q))).sort((a,b)=>(b.added||0)-(a.added||0))}
+  if(!list.length)return `<div class="empty">${libQ?'Nincs találat.':'Még üres a könyvtár.<br>Adj hozzá mappát, fájlokat, felhős linket vagy YouTube-videót.'}</div>`;
+  return list.slice(0,300).map(t=>trackRow(t)).join('')+(list.length>300?`<div class="muted" style="text-align:center">…és még ${list.length-300}. Szűkíts kereséssel.</div>`:'');
+}
+function urlSheet(){
+  openSheet(`<div class="hd">Felhős zene hozzáadása</div>
+    <div class="muted">Közvetlen mp3 link, Firebase Storage letöltési link, Google Drive megosztási link („Bárki, aki rendelkezik a linkkel”) vagy Dropbox link.</div>
+    <label>Link</label><input id="uu" placeholder="https://…">
+    <label>Cím (nem kötelező)</label><input id="ut"><label>Előadó (nem kötelező)</label><input id="ua">
+    <div class="flex" style="margin-top:14px"><button class="btn f1" onclick="saveUrl(false)">Hozzáadás</button><button class="btn sec f1" onclick="saveUrl(true)">▶ Lejátszás</button></div>`);
+}
+function saveUrl(playNow){
+  const u=$('#uu').value.trim();
+  if(!/^https?:\/\//.test(u))return toast('Adj meg egy http(s) linket');
+  const vid=ytId(u);
+  const t=vid?addYt(vid,$('#ut').value.trim(),''):addUrlTrack(u,$('#ut').value.trim(),$('#ua').value.trim());
+  closeSheet();toast('Hozzáadva');
+  if(playNow){playSmart(t.id);go('most')}else render();
+}
+
+function trackMenu(id){
+  const t=db.tracks[id];
+  openSheet(`<div class="hd">${esc(t.title)}</div>
+    <button class="mi" onclick="closeSheet();playSmart('${id}');go('most')">▶  Lejátszás most</button>
+    <button class="mi" onclick="closeSheet();playNextUp('${id}')">⏭  Következőnek</button>
+    <button class="mi" onclick="addToListSheet('${id}')">＋  Listához…</button>
+    ${t.src!=='radio'?`<button class="mi" onclick="editTrack('${id}')">✏️  Szerkesztés (cím, előadó, műfaj)</button>`:''}
+    <button class="mi" id="delT" onclick="delTrack('${id}')">🗑️  Törlés a könyvtárból</button>`);
+}
+function delTrack(id){
+  const b=$('#delT');
+  if(!b.dataset.c){b.dataset.c='1';b.textContent='🗑️  Biztos? Koppints újra';return}
+  delete db.tracks[id];db.lists.forEach(l=>l.items=l.items.filter(x=>x!==id));db.hist=db.hist.filter(x=>x!==id);
+  save();closeSheet();render();toast('Törölve');
+}
+function editTrack(id){
+  const t=db.tracks[id];
+  openSheet(`<div class="hd">Szerkesztés</div>
+    <label>Cím</label><input id="et" value="${esc(t.title)}">
+    <label>Előadó</label><input id="ea" value="${esc(t.artist)}">
+    <label>Műfaj</label><input id="eg" value="${esc(t.genre)}" placeholder="pl. pop, rock, jazz">
+    <div class="flex" style="margin-top:14px"><button class="btn f1" onclick="saveEdit('${id}')">Mentés</button></div>`);
+}
+function saveEdit(id){
+  const t=db.tracks[id];t.title=$('#et').value.trim()||t.title;t.artist=$('#ea').value.trim();t.genre=$('#eg').value.trim();
+  save();closeSheet();render();if(P.cur===id)sess();
+}
+function addToListSheet(id,fromShare){
+  const t=db.tracks[id];
+  const row=l=>`<button class="mi" onclick="toggleIn('${l.id}','${id}',this)">${l.items.includes(id)?'✅':'⬜'}  ${l.emo} ${esc(l.name)}</button>`;
+  openSheet(`<div class="hd">${fromShare?'Hozzáadva: ':''}${esc(t.title)}</div>
+    ${fromShare?`<div class="muted" style="margin:0 4px 6px">${esc(t.artist||'')} – a könyvtárban már megvan. Melyik listákba tegyem?</div>
+      <button class="btn" style="width:100%;margin:6px 0" onclick="closeSheet();playSmart('${id}');go('most')">▶ Lejátszás most</button>`:''}
+    ${db.lists.map(row).join('')}
+    <button class="mi" style="color:var(--ac2)" onclick="newListSheet('${id}')">＋  Új lista ezzel a számmal</button>`);
+}
+function toggleIn(lid,tid,el){
+  const l=listById(lid);
+  if(l.items.includes(tid)){l.items=l.items.filter(x=>x!==tid)}else l.items.push(tid);
+  save();el.innerHTML=`${l.items.includes(tid)?'✅':'⬜'}  ${l.emo} ${esc(l.name)}`;
+  if(listView)render();
+}
+
+function renderYt(){
+  let h=`<div class="flex" style="margin-top:4px"><input id="ytq" class="f1" placeholder="Előadó, szám…" value="${esc(ytQ)}" onkeydown="if(event.key==='Enter')doYt()"><button class="btn" onclick="doYt()">🔍</button></div>`;
+  if(!db.set.ytKey)h+=`<div class="muted" style="margin:10px 2px">Az appon belüli kereséshez YouTube API-kulcs kell (⚙️ Beállítások). Nélküle is megy: böngéssz a YouTube-on, és a ＋ Listához gombbal mentsd a videót.</div>`;
+  h+=`<div class="flex" style="margin:10px 0 4px"><button class="btn sec f1" onclick="browse(ytQ?'https://m.youtube.com/results?search_query='+enc(ytQ):'')">🌐 Böngészés a YouTube-on</button></div>
+    <div class="muted" style="margin:6px 2px 10px">Tipp: a YouTube appban <b>Megosztás → MillMusic</b>, és a szám rögtön listába tehető.</div><div id="ytRes">`;
+  h+=ytRes.map((r,i)=>`<div class="row" onclick="ytPlayRes(${i})"><div class="thumb">${r.thumb?`<img src="${esc(r.thumb)}">`:'▶️'}</div>
+    <div class="tt"><div class="t1">${esc(r.title)}</div><div class="t2">${esc(r.channel)}</div></div>
+    <button class="dots" onclick="event.stopPropagation();ytAddRes(${i})">＋</button></div>`).join('');
+  return h+'</div>';
+}
+async function doYt(){
+  ytQ=$('#ytq').value.trim();if(!ytQ)return;
+  if(!db.set.ytKey)return browse('https://m.youtube.com/results?search_query='+enc(ytQ));
+  $('#ytRes').innerHTML='<div class="empty">Keresés…</div>';
+  try{ytRes=await ytSearch(ytQ)}catch(e){ytRes=[];toast('Hiba: '+e.message)}
+  if(tab==='yt')render();
+}
+function ytPlayRes(i){const r=ytRes[i];const t=addYt(r.id,r.title,r.channel);playSmart(t.id);go('most')}
+function ytAddRes(i){const r=ytRes[i];const t=addYt(r.id,r.title,r.channel);addToListSheet(t.id)}
+
+const RTAGS=['pop','rock','hits','80s','90s','jazz','chillout','classical','dance','christmas','oldies','lounge'];
+function renderRadio(){
+  const chip=(id,n)=>`<button class="chip ${radioMode===id?'on':''}" onclick="setRadio('${id}')">${n}</button>`;
+  let h=`<div class="flex" style="margin-top:4px"><input id="rq" class="f1" placeholder="Rádió neve…" value="${esc(radioQ)}" onkeydown="if(event.key==='Enter')radioSearch()"><button class="btn" onclick="radioSearch()">🔍</button></div>
+    <div class="chips" style="margin-top:10px">${chip('fav','★ Kedvencek')}${chip('hu','🇭🇺 Magyar')}${RTAGS.map(t=>chip('tag:'+t,t)).join('')}</div>`;
+  if(radioMode==='fav'){
+    const favs=Object.values(db.tracks).filter(t=>t.src==='radio'&&t.fav);
+    if(!favs.length)return h+`<div class="empty">Még nincs kedvenc rádiód.<br>Nézd meg a 🇭🇺 Magyar adókat, és nyomd meg a ☆ gombot.</div>`;
+    return h+favs.map(t=>trackRow(t,{onclick:`playSmart('${t.id}');go('most')`,right:`<button class="dots" onclick="event.stopPropagation();favToggle('${t.id}')">★</button>`})).join('');
+  }
+  if(radioLoading)return h+`<div class="empty">Betöltés…</div>`;
+  if(!radioRes.length)return h+`<div class="empty">Nincs találat.</div>`;
+  return h+radioRes.map((s,i)=>{
+    const t=db.tracks['r_'+s.stationuuid],fav=t&&t.fav;
+    return `<div class="row" onclick="rPlay(${i})"><div class="thumb">${s.favicon?`<img src="${esc(s.favicon)}" onerror="this.parentNode.textContent='📻'">`:'📻'}</div>
+      <div class="tt"><div class="t1">${esc(s.name)}</div><div class="t2">${esc([s.countrycode,s.bitrate?s.bitrate+' kbps':'',String(s.tags||'').split(',').slice(0,3).join(', ')].filter(Boolean).join(' · '))}</div></div>
+      <button class="dots" onclick="event.stopPropagation();rFav(${i})">${fav?'★':'☆'}</button></div>`;
+  }).join('');
+}
+async function setRadio(mode){
+  radioMode=mode;
+  if(mode==='fav')return render();
+  let path;
+  if(mode==='hu')path='stations/bycountrycodeexact/HU?order=clickcount&reverse=true&limit=100&hidebroken=true';
+  else if(mode==='search')path='stations/search?name='+enc(radioQ)+'&order=clickcount&reverse=true&limit=80&hidebroken=true';
+  else path='stations/bytagexact/'+enc(mode.slice(4))+'?order=clickcount&reverse=true&limit=80&hidebroken=true';
+  radioLoading=true;render();
+  try{radioRes=await rb(path)}catch(e){radioRes=[];toast('Rádió-adatbázis nem érhető el')}
+  radioLoading=false;if(tab==='radio')render();
+}
+function radioSearch(){radioQ=$('#rq').value.trim();if(radioQ)setRadio('search')}
+function rPlay(i){const t=stTrack(radioRes[i]);playSmart(t.id);go('most')}
+function rFav(i){const t=stTrack(radioRes[i]);favToggle(t.id)}
+function favToggle(id){const t=db.tracks[id];t.fav=!t.fav;save();toast(t.fav?'Kedvencekhez adva':'Eltávolítva a kedvencekből');render()}
+
+/* ---------------- Lap (sheet) ---------------- */
+function openSheet(html){$('#sheet').innerHTML=html;$('#sheet').classList.add('on');$('#bd').classList.add('on')}
+function closeSheet(){$('#sheet').classList.remove('on');$('#bd').classList.remove('on')}
+
+function openSettings(){
+  const ok=A.batteryOk();
+  openSheet(`<div class="hd">Beállítások</div>
+    <label>YouTube Data API-kulcs (kereséshez és YouTube-os ajánláshoz)</label>
+    <input id="yk" value="${esc(db.set.ytKey||'')}" placeholder="AIza…">
+    <div class="muted" style="margin:6px 2px">console.cloud.google.com → új projekt → „YouTube Data API v3” engedélyezése → Hitelesítő adatok → API-kulcs. Korlátozásnak <b>ne</b> „Android-alkalmazást” válassz (a kérés a beépített böngészőből megy); elég az API-korlátozás a YouTube Data API v3-ra.</div>
+    <button class="btn" style="width:100%;margin-top:6px" onclick="db.set.ytKey=$('#yk').value.trim();save();closeSheet();toast('Mentve');render()">Kulcs mentése</button>
+    <h3>YouTube Premium</h3>
+    <div class="muted">Ha bejelentkezel, a Premiumod miatt nem lesznek reklámok. Ha a Google letiltja a beépített böngészőben a belépést, a lejátszás akkor is megy, csak reklámokkal.</div>
+    <button class="btn sec" style="width:100%;margin-top:8px" onclick="closeSheet();P.browsing=true;lastYtMode='browse';A.ytLogin()">🔑 Bejelentkezés a YouTube-ba</button>
+    <h3>Háttérfutás (Samsung)</h3>
+    <div class="muted">${ok?'✅ Korlátlan háttérfutás engedélyezve.':'⚠️ Még nincs engedélyezve.'} Ezen felül: Beállítások → Akkumulátor → Háttérhasználati korlátok → <b>Soha nem alvó alkalmazások</b> → MillMusic.</div>
+    <div class="flex" style="margin-top:8px"><button class="btn sec f1" onclick="A.requestBattery()">Engedélyezés</button><button class="btn sec f1" onclick="A.openAppSettings()">App beállítások</button></div>
+    <h3>Biztonsági mentés</h3>
+    <div class="muted">A listák és a könyvtár a telefonon tárolódnak. A Firebase-mentés a 2. szakaszban jön, addig kézzel:</div>
+    <div class="flex" style="margin-top:8px"><button class="btn sec f1" onclick="exportDb()">📋 Másolás</button><button class="btn sec f1" onclick="importSheet()">📥 Betöltés</button></div>
+    <div class="muted" style="margin-top:16px;text-align:center">MillMusic ${esc(A.version()||'')} · 1. szakasz</div>`);
+}
+function exportDb(){
+  const s=JSON.stringify(db);
+  (navigator.clipboard?navigator.clipboard.writeText(s):Promise.reject()).then(()=>toast('Vágólapra másolva ('+Math.round(s.length/1024)+' KB)'),()=>toast('Nem sikerült másolni'));
+}
+function importSheet(){
+  openSheet(`<div class="hd">Mentés betöltése</div><div class="muted">Illeszd be a korábban kimásolt szöveget. A jelenlegi adatok felülíródnak.</div>
+    <textarea id="imp" rows="6" style="margin-top:10px"></textarea>
+    <button class="btn" style="width:100%;margin-top:10px" onclick="doImport()">Betöltés</button>`);
+}
+function doImport(){
+  try{const d=JSON.parse($('#imp').value);if(!d.tracks)throw 0;localStorage.setItem('mm_db',JSON.stringify(d));load();closeSheet();render();toast('Betöltve')}catch(e){toast('Hibás mentés')}
+}
+
+/* ---------------- Indulás ---------------- */
+load();
+if(db.set.last&&db.tracks[db.set.last]){P.cur=db.set.last;P.kind=db.tracks[P.cur].src==='yt'?'yt':'audio';P.queue=[P.cur]}
+render();
+</script>
+</body>
+</html>
